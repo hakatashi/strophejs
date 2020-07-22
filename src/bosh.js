@@ -5,7 +5,7 @@
     Copyright 2006-2008, OGG, LLC
 */
 
-/* global window, setTimeout, clearTimeout, XMLHttpRequest, ActiveXObject */
+/* global ActiveXObject */
 
 import { DOMParser } from './shims'
 import core from './core';
@@ -73,7 +73,7 @@ Strophe.Request.prototype = {
      *  Returns:
      *    The DOM element tree of the response.
      */
-    getResponse: function () {
+    getResponse () {
         let node = null;
         if (this.xhr.responseXML && this.xhr.responseXML.documentElement) {
             node = this.xhr.responseXML.documentElement;
@@ -109,7 +109,7 @@ Strophe.Request.prototype = {
      *  Returns:
      *    A new XMLHttpRequest.
      */
-    _newXHR: function () {
+    _newXHR () {
         let xhr = null;
         if (window.XMLHttpRequest) {
             xhr = new XMLHttpRequest();
@@ -187,7 +187,7 @@ Strophe.Bosh.prototype = {
      *  Returns:
      *    A Strophe.Builder with a <body/> element.
      */
-    _buildBody: function () {
+    _buildBody () {
         const bodyWrap = $build('body', {
             'rid': this.rid++,
             'xmlns': Strophe.NS.HTTPBIND
@@ -206,7 +206,7 @@ Strophe.Bosh.prototype = {
      *
      *  This function is called by the reset function of the Strophe Connection
      */
-    _reset: function () {
+    _reset () {
         this.rid = Math.floor(Math.random() * 4294967295);
         this.sid = null;
         this.errors = 0;
@@ -222,7 +222,7 @@ Strophe.Bosh.prototype = {
      *
      *  Creates and sends the Request that initializes the BOSH connection.
      */
-    _connect: function (wait, hold, route) {
+    _connect (wait, hold, route) {
         this.wait = wait || this.wait;
         this.hold = hold || this.hold;
         this.errors = 0;
@@ -276,7 +276,7 @@ Strophe.Bosh.prototype = {
      *    (Integer) wind - The optional HTTBIND window value.  This is the
      *      allowed range of request ids that are valid.  The default is 5.
      */
-    _attach: function (jid, sid, rid, callback, wait, hold, wind) {
+    _attach (jid, sid, rid, callback, wait, hold, wind) {
         this._conn.jid = jid;
         this.sid = sid;
         this.rid = rid;
@@ -312,7 +312,7 @@ Strophe.Bosh.prototype = {
      *    (Integer) wind - The optional HTTBIND window value.  This is the
      *      allowed range of request ids that are valid.  The default is 5.
      */
-    _restore: function (jid, callback, wait, hold, wind) {
+    _restore (jid, callback, wait, hold, wind) {
         const session = JSON.parse(window.sessionStorage.getItem('strophe-bosh-session'));
         if (typeof session !== "undefined" &&
                    session !== null &&
@@ -343,7 +343,7 @@ Strophe.Bosh.prototype = {
      *  Parameters:
      *    (Strophe.Request) bodyWrap - The received stanza.
      */
-    _cacheSession: function () {
+    _cacheSession () {
         if (this._conn.authenticated) {
             if (this._conn.jid && this.rid && this.sid) {
                 window.sessionStorage.setItem('strophe-bosh-session', JSON.stringify({
@@ -364,7 +364,7 @@ Strophe.Bosh.prototype = {
      *  Parameters:
      *    (Strophe.Request) bodyWrap - The received stanza.
      */
-    _connect_cb: function (bodyWrap) {
+    _connect_cb (bodyWrap) {
         const typ = bodyWrap.getAttribute("type");
         if (typ !== null && typ === "terminate") {
             // an error occurred
@@ -404,7 +404,7 @@ Strophe.Bosh.prototype = {
      *  Parameters:
      *    (Request) pres - This stanza will be sent before disconnecting.
      */
-    _disconnect: function (pres) {
+    _disconnect (pres) {
         this._sendTerminate(pres);
     },
 
@@ -413,7 +413,7 @@ Strophe.Bosh.prototype = {
      *
      *  Resets the SID and RID.
      */
-    _doDisconnect: function () {
+    _doDisconnect () {
         this.sid = null;
         this.rid = Math.floor(Math.random() * 4294967295);
         if (this._conn._sessionCachingSupported()) {
@@ -429,7 +429,7 @@ Strophe.Bosh.prototype = {
      *  Returns:
      *    True, if there are no Requests queued, False otherwise.
      */
-    _emptyQueue: function () {
+    _emptyQueue () {
         return this._requests.length === 0;
     },
 
@@ -439,7 +439,7 @@ Strophe.Bosh.prototype = {
      *  Parameters:
      *    (Strophe.Request) req - The request that is changing readyState.
      */
-    _callProtocolErrorHandlers: function (req) {
+    _callProtocolErrorHandlers (req) {
         const reqStatus = this._getRequestStatus(req);
         const err_callback = this._conn.protocolErrorHandlers.HTTP[reqStatus];
         if (err_callback) {
@@ -457,7 +457,7 @@ Strophe.Bosh.prototype = {
      *  Parameters:
      *    (Integer) reqStatus - The request status.
      */
-    _hitError: function (reqStatus) {
+    _hitError (reqStatus) {
         this.errors++;
         Strophe.warn("request errored, status: " + reqStatus +
                      ", number of errors: " + this.errors);
@@ -471,7 +471,7 @@ Strophe.Bosh.prototype = {
      * Called on stream start/restart when no stream:features
      * has been received and sends a blank poll request.
      */
-    _no_auth_received: function (callback) {
+    _no_auth_received (callback) {
         Strophe.warn("Server did not yet offer a supported authentication "+
                      "mechanism. Sending a blank poll request.");
         if (callback) {
@@ -495,7 +495,7 @@ Strophe.Bosh.prototype = {
      *
      *  Cancels all remaining Requests and clears the queue.
      */
-    _onDisconnectTimeout: function () {
+    _onDisconnectTimeout () {
         this._abortAllRequests();
     },
 
@@ -516,7 +516,7 @@ Strophe.Bosh.prototype = {
      *
      *  Sends all queued Requests or polls with empty Request if there are none.
      */
-    _onIdle: function () {
+    _onIdle () {
         const data = this._conn._data;
         // if no requests are in progress, poll
         if (this._conn.authenticated && this._requests.length === 0 &&
@@ -584,7 +584,7 @@ Strophe.Bosh.prototype = {
      *    (Integer) def - The default value that should be returned if no
      *          status value was found.
      */
-    _getRequestStatus: function (req, def) {
+    _getRequestStatus (req, def) {
         let reqStatus;
         if (req.xhr.readyState === 4) {
             try {
@@ -615,7 +615,7 @@ Strophe.Bosh.prototype = {
      *    (Function) func - The handler for the request.
      *    (Strophe.Request) req - The request that is changing readyState.
      */
-    _onRequestStateChange: function (func, req) {
+    _onRequestStateChange (func, req) {
         Strophe.debug("request id "+req.id+"."+req.sends+
                       " state changed to "+req.xhr.readyState);
         if (req.abort) {
@@ -690,7 +690,7 @@ Strophe.Bosh.prototype = {
      *  Parameters:
      *    (Integer) i - The index of the request in the queue.
      */
-    _processRequest: function (i) {
+    _processRequest (i) {
         let req = this._requests[i];
         const reqStatus = this._getRequestStatus(req, -1);
 
@@ -794,7 +794,7 @@ Strophe.Bosh.prototype = {
      *  Parameters:
      *    (Strophe.Request) req - The request to remove.
      */
-    _removeRequest: function (req) {
+    _removeRequest (req) {
         Strophe.debug("removing request");
         for (let i=this._requests.length - 1; i>=0; i--) {
             if (req === this._requests[i]) {
@@ -812,7 +812,7 @@ Strophe.Bosh.prototype = {
      *  Parameters:
      *    (Integer) i - The index of the request in the queue.
      */
-    _restartRequest: function (i) {
+    _restartRequest (i) {
         const req = this._requests[i];
         if (req.dead === null) {
             req.dead = new Date();
@@ -832,7 +832,7 @@ Strophe.Bosh.prototype = {
      *  Returns:
      *    The stanza that was passed.
      */
-    _reqToData: function (req) {
+    _reqToData (req) {
         try {
             return req.getResponse();
         } catch (e) {
@@ -848,7 +848,7 @@ Strophe.Bosh.prototype = {
      *  the BOSH server a terminate body and includes an unavailable
      *  presence if authentication has completed.
      */
-    _sendTerminate: function (pres) {
+    _sendTerminate (pres) {
         Strophe.debug("_sendTerminate was called");
         const body = this._buildBody().attrs({type: "terminate"});
         if (pres) {
@@ -868,7 +868,7 @@ Strophe.Bosh.prototype = {
      *
      * Just triggers the RequestHandler to send the messages that are in the queue
      */
-    _send: function () {
+    _send () {
         clearTimeout(this._conn._idleTimeout);
         this._throttledRequestHandler();
         this._conn._idleTimeout = setTimeout(() => this._conn._onIdle(), 100);
@@ -878,7 +878,7 @@ Strophe.Bosh.prototype = {
      *
      *  Send an xmpp:restart stanza.
      */
-    _sendRestart: function () {
+    _sendRestart () {
         this._throttledRequestHandler();
         clearTimeout(this._conn._idleTimeout);
     },
@@ -890,7 +890,7 @@ Strophe.Bosh.prototype = {
      *  request ids overflow the connection window in the case that one
      *  request died.
      */
-    _throttledRequestHandler: function () {
+    _throttledRequestHandler () {
         if (!this._requests) {
             Strophe.debug("_throttledRequestHandler called with " +
                           "undefined requests");
